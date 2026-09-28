@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitbucket PR Settings</title>
+  <link rel="stylesheet" href="../shared/form.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <h1>Bitbucket PR Settings</h1>
+
+  <div id="configWarning" class="message error">
+    Jira and Bitbucket domains are not configured yet.
+    <a href="#" class="open-options-link">Open options</a>
+  </div>
+
+  <div class="section">
+    <p class="help-text">
+      Jira / Bitbucket domains and the Bitbucket token are set in the
+      <a href="#" class="open-options-link">extension options</a>.
+    </p>
+
+    <!-- Checkbox IDs are the chrome.storage.local keys of the settings -->
+    <div class="checkbox-section">
+      <label class="checkbox-label">
+        <input type="checkbox" id="includeSearchPRText">
+        Include search PR Text
+      </label>
+      <p class="help-text">
+        When enabled, also searches for pull requests by Jira key in the PR titles of the repositories set in the extension options.
+      </p>
+    </div>
+
+    <div class="checkbox-section">
+      <label class="checkbox-label">
+        <input type="checkbox" id="autoLoadData">
+        Auto-load data
+      </label>
+      <p class="help-text">
+        When enabled, automatically fetches pull request data when a Jira page loads.
+      </p>
+    </div>
+
+    <div class="checkbox-section">
+      <label class="checkbox-label">
+        <input type="checkbox" id="rewriteJiraLinks">
+        Rewrite Jira Links on Bitbucket
+      </label>
+      <p class="help-text">
+        When enabled, replaces Jira issue links on Bitbucket pages with Atlassian Jira links.
+      </p>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button id="saveButton" class="btn-primary">Save</button>
+  </div>
+
+  <div id="message" class="message"></div>
+
+  <div class="divider"></div>
+
+  <div class="section how-to">
+    <h2>How to use:</h2>
+    <ol>
+      <li>Open a Jira issue page on your configured Jira domain</li>
+      <li>Click the "Bitbucket" button to view related pull requests</li>
+      <li>The button will turn green when PRs are found</li>
+    </ol>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

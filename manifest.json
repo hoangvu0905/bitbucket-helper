@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Bitbucket PR for Jira",
+  "version": "1.0.0",
+  "description": "Display Bitbucket pull requests associated with Jira issues",
+  "permissions": [
+    "storage",
+    "cookies",
+    "scripting"
+  ],
+  "optional_host_permissions": [
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Bitbucket PR Settings"
+  },
+  "icons": {
+    "16": "icons/icon.png",
+    "48": "icons/icon.png",
+    "128": "icons/icon.png"
+  }
+}

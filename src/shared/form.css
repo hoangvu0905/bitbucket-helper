@@ -1,0 +1,128 @@
+/* Styles shared by the popup and options pages */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+h1 {
+  color: #172b4d;
+}
+
+a {
+  color: #0052cc;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #42526e;
+  font-size: 14px;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #dfe1e6;
+  border-radius: 3px;
+  font-size: 14px;
+  box-sizing: border-box;
+  font-family: monospace;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #0052cc;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.button-group button {
+  flex: 1;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background-color: #0052cc;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0065ff;
+}
+
+.btn-secondary {
+  background-color: #f4f5f7;
+  color: #42526e;
+  white-space: nowrap;
+}
+
+.btn-secondary:hover {
+  background-color: #ebecf0;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.message {
+  padding: 12px;
+  border-radius: 3px;
+  margin-top: 16px;
+  font-size: 14px;
+  display: none;
+}
+
+.message.success {
+  background-color: #e3fcef;
+  border: 1px solid #36b37e;
+  color: #006644;
+}
+
+.message.error {
+  background-color: #ffebe6;
+  border: 1px solid #de350b;
+  color: #bf2600;
+}
+
+.message.info {
+  background-color: #deebff;
+  border: 1px solid #0052cc;
+  color: #0747a6;
+}
+
+.help-text {
+  font-size: 12px;
+  color: #6b778c;
+  margin-top: 4px;
+}
+
+.divider {
+  height: 1px;
+  background-color: #dfe1e6;
+  margin: 20px 0;
+}

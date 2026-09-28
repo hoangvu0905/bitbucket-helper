@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitbucket PR for Jira Options</title>
+  <link rel="stylesheet" href="../shared/form.css">
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Bitbucket PR for Jira Options</h1>
+
+    <div class="section">
+      <h2>Domains</h2>
+
+      <div class="field">
+        <label for="jiraDomainInput">Jira domain</label>
+        <input type="text" id="jiraDomainInput" placeholder="e.g. your-company.atlassian.net" autocomplete="off" spellcheck="false">
+        <p class="help-text">Host name of your Jira site, without https:// or a path.</p>
+      </div>
+
+      <div class="field">
+        <label for="bitbucketDomainInput">Bitbucket domain</label>
+        <input type="text" id="bitbucketDomainInput" placeholder="e.g. bitbucket.your-company.com" autocomplete="off" spellcheck="false">
+        <p class="help-text">Host name of your Bitbucket server, without https:// or a path.</p>
+      </div>
+
+      <p class="help-text">
+        When you save, Chrome asks for permission to access these two sites.
+        Reload open Jira and Bitbucket tabs after saving.
+      </p>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <h2>Pull request title search</h2>
+
+      <div class="field">
+        <label for="searchRepositoriesInput">Repositories</label>
+        <textarea id="searchRepositoriesInput" rows="4" placeholder="PROJECT/repository (one per line)" spellcheck="false"></textarea>
+        <p class="help-text">
+          Repositories whose pull request titles are searched for the Jira key, when
+          "Include search PR Text" is enabled in the popup. One <code>PROJECT/repository</code> per line.
+        </p>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <h2>Bitbucket authentication</h2>
+
+      <div class="field">
+        <label for="tokenInput">Bitbucket token</label>
+        <div class="input-row">
+          <input type="text" id="tokenInput" placeholder="Enter Authorization token" autocomplete="off" spellcheck="false">
+          <button id="checkTokenButton" class="btn-secondary">Check token</button>
+        </div>
+        <p class="help-text">
+          Optional. Leave empty to use your Bitbucket session cookie from this browser instead.
+        </p>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button id="saveButton" class="btn-primary">Save</button>
+    </div>
+
+    <div id="message" class="message"></div>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

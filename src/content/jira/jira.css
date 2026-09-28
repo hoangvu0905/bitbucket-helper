@@ -1,0 +1,258 @@
+/* Bitbucket Button Styles */
+.bitbucket-pr-button {
+  background-color: #0052cc;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 16px;
+  height: 32px;
+  font-family: inherit;
+}
+
+.bitbucket-pr-button:hover {
+  background-color: #0065ff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.bitbucket-pr-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bitbucket-pr-button.loading {
+  background-color: #6c757d;
+}
+
+.bitbucket-pr-button.has-prs {
+  background-color: #36b37e;
+}
+
+.bitbucket-pr-button.has-prs:hover {
+  background-color: #2a9d68;
+}
+
+/* Popup Styles */
+.bitbucket-pr-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.bitbucket-pr-popup > div {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  max-width: 1200px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+}
+
+.popup-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #172b4d;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #6b778c;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: #e0e0e0;
+  color: #172b4d;
+}
+
+.popup-content {
+  padding: 16px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* PR Table Styles */
+.pr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.pr-table thead {
+  background-color: #f4f5f7;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.pr-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #172b4d;
+  border-bottom: 2px solid #dfe1e6;
+}
+
+.pr-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f4f5f7;
+  color: #42526e;
+}
+
+.pr-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.pr-table tbody tr:hover {
+  background-color: #f7f8f9;
+}
+
+.pr-id-link {
+  color: #0052cc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.pr-id-link:hover {
+  text-decoration: underline;
+}
+
+.pr-title {
+  max-width: 350px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pr-title-link {
+  color: #0052cc;
+  text-decoration: none;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pr-title-link:hover {
+  text-decoration: underline;
+}
+
+.pr-branch {
+  font-family: monospace;
+  font-size: 13px;
+  color: #6b778c;
+}
+
+.pr-state {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.pr-state-open {
+  background-color: #e3fcef;
+  color: #006644;
+}
+
+.pr-state-merged {
+  background-color: #deebff;
+  color: #0747a6;
+}
+
+.pr-state-declined {
+  background-color: #ffebe6;
+  color: #bf2600;
+}
+
+.pr-state-closed {
+  background-color: #f4f5f7;
+  color: #6b778c;
+}
+
+/* Notification Styles */
+.bitbucket-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 20px;
+  background-color: white;
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10001;
+  min-width: 300px;
+  max-width: 500px;
+  animation: slideIn 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.bitbucket-notification.info {
+  border-left: 4px solid #0052cc;
+}
+
+.bitbucket-notification.error {
+  border-left: 4px solid #de350b;
+  color: #de350b;
+}
+
+.bitbucket-notification.success {
+  border-left: 4px solid #36b37e;
+  color: #36b37e;
+}
