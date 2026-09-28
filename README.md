@@ -65,7 +65,13 @@ The popup (extension icon) holds the feature toggles: *Include search PR Text*, 
 
 ### Configuring the PR Title Search
 
-When *Include search PR Text* is enabled in the popup, the Jira key is also searched in the pull request titles of the repositories listed in the options page (**Pull request title search → Repositories**), one `PROJECT/repository` per line. There is no default list; without repositories only the commit-based lookup is used.
+When *Include search PR Text* is enabled in the popup, the Jira key is also searched in the pull request titles of the repositories selected in the options page (**Pull request title search**):
+
+1. Open the options page. Once the Bitbucket domain is saved, the repositories you can access are loaded automatically; otherwise click **Load repositories** (it uses the entered token, or your Bitbucket session when no token is entered)
+2. Use the filter to find repositories by project or name, and tick the ones to search
+3. Click **Save**
+
+There is no default selection; without repositories only the commit-based lookup is used. A selected repository that is no longer found in Bitbucket stays selected and is marked *not found* until you untick it.
 
 ## Usage
 
@@ -124,6 +130,7 @@ There is no build step: the folder is loaded as-is with "Load unpacked".
     │   ├── bitbucket-api.js       # Bitbucket REST endpoints, auth headers, API calls
     │   ├── auth.js                # Token/cookie auth and validation (also used by "Check token")
     │   ├── pull-requests.js       # PR lookup for a Jira issue (commits + title search, caching)
+    │   ├── repositories.js        # Lists the repositories the user can access (options page picker)
     │   └── content-scripts.js     # Registers content scripts for the configured domains
     ├── content/                   # Content scripts (classic scripts, no imports)
     │   ├── jira/
@@ -135,13 +142,14 @@ There is no build step: the folder is loaded as-is with "Load unpacked".
     │   ├── popup.html
     │   ├── popup.css
     │   └── popup.js
-    ├── options/                   # Options page: domains, PR title search repositories, Bitbucket token
+    ├── options/                   # Options page: domains, Bitbucket token, PR title search repositories
     │   ├── options.html
     │   ├── options.css
-    │   └── options.js
+    │   ├── options.js
+    │   └── repository-picker.js   # Repository checkboxes grouped by project, with a filter
     └── shared/                    # Used by the service worker and the popup/options pages
         ├── domains.js             # Configured domains, host permission helpers, domain normalization
-        ├── search-repositories.js # Repositories for the PR title search (storage, parsing)
+        ├── search-repositories.js # Selected repositories for the PR title search (storage)
         ├── message.js             # Status message on the popup/options pages
         └── form.css               # Styles shared by the popup and options pages
 ```
@@ -152,7 +160,7 @@ There is no build step: the folder is loaded as-is with "Load unpacked".
 
 Runs as an ES module (`"type": "module"` in `manifest.json`), split by concern:
 
-- **Message Handling** (`service-worker.js`): Routes messages to handlers - `getPullRequests` (Jira content script), `validateToken` (options page)
+- **Message Handling** (`service-worker.js`): Routes messages to handlers - `getPullRequests` (Jira content script), `validateToken` and `listRepositories` (options page)
 - **Content Script Registration** (`content-scripts.js`): Registers the Jira/Bitbucket content scripts for the configured domains the user granted access to. The domains are unknown at build time, so the scripts are not declared in `manifest.json`; they are re-registered when the domains or permissions change.
 - **Authentication** (`auth.js`): Gets the token from storage, falls back to the browser cookie, and validates either against the Bitbucket API
 - **API Helpers** (`bitbucket-api.js`): Endpoints and authenticated API calls
@@ -176,6 +184,7 @@ Content scripts cannot be ES modules, so each one keeps its own constants (e.g. 
 - Stores `jiraDomain`, `bitbucketDomain`, `searchRepositories` and `bitbucketToken` in `chrome.storage.local`
 - Requests host access for the configured domains (optional host permissions) and revokes access to domains no longer configured
 - Checks the entered token against the entered Bitbucket domain on demand
+- Loads the repositories of the entered Bitbucket domain (`/rest/api/latest/repos`, all pages) for choosing the PR title search repositories
 
 ### Popup (`src/popup/`)
 

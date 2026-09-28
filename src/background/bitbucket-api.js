@@ -16,6 +16,13 @@ export function projectsApi(bitbucketDomain) {
 }
 
 /**
+ * Endpoint listing the repositories the user can access, across all projects
+ */
+export function reposApi(bitbucketDomain) {
+  return `https://${bitbucketDomain}/rest/api/latest/repos`;
+}
+
+/**
  * Build authentication headers based on auth type
  */
 export function buildAuthHeaders(auth) {

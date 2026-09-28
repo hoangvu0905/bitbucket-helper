@@ -41,3 +41,68 @@ h2 {
 .input-row input {
   flex: 1;
 }
+
+.section-intro {
+  margin: 0 0 12px 0;
+}
+
+#repositoriesStatus.error {
+  color: #bf2600;
+}
+
+/* Repository picker */
+.repository-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding: 4px 0;
+  border: 2px solid #dfe1e6;
+  border-radius: 3px;
+}
+
+.repository-group-title {
+  padding: 8px 12px 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b778c;
+}
+
+.repository-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 4px 12px;
+  font-weight: normal;
+  color: #172b4d;
+  cursor: pointer;
+}
+
+.repository-item:hover {
+  background-color: #f4f5f7;
+}
+
+.repository-path {
+  margin-left: auto;
+  font-family: monospace;
+  font-size: 12px;
+  color: #6b778c;
+}
+
+.repository-missing {
+  font-size: 12px;
+  color: #bf2600;
+}
+
+.repository-note {
+  padding: 12px;
+  font-size: 13px;
+  color: #6b778c;
+}
+
+/* display: flex above would otherwise win over the hidden attribute */
+.repository-group[hidden],
+.repository-item[hidden],
+.repository-note[hidden] {
+  display: none;
+}

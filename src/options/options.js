@@ -1,25 +1,32 @@
-// Options page script for managing domains, the PR title search repositories and the Bitbucket token
-import { getDomains, normalizeDomain, originPattern } from '../shared/domains.js';
-import { formatSearchRepositories, getSearchRepositories, parseSearchRepositories } from '../shared/search-repositories.js';
+// Options page script for managing domains, the Bitbucket token and the PR title search repositories
+import { getDomains, hasHostPermission, normalizeDomain, originPattern } from '../shared/domains.js';
+import { getSearchRepositories } from '../shared/search-repositories.js';
 import { showMessage } from '../shared/message.js';
+import { createRepositoryPicker } from './repository-picker.js';
 
 const jiraDomainInput = document.getElementById('jiraDomainInput');
 const bitbucketDomainInput = document.getElementById('bitbucketDomainInput');
-const searchRepositoriesInput = document.getElementById('searchRepositoriesInput');
 const tokenInput = document.getElementById('tokenInput');
 const checkTokenButton = document.getElementById('checkTokenButton');
+const loadRepositoriesButton = document.getElementById('loadRepositoriesButton');
+const repositoriesStatus = document.getElementById('repositoriesStatus');
 const saveButton = document.getElementById('saveButton');
 const messageDiv = document.getElementById('message');
+const repositoryPicker = createRepositoryPicker(
+  document.getElementById('repositoryList'),
+  document.getElementById('repositoryFilterInput')
+);
 
 // Load saved values (no defaults)
 loadSettings();
 
 // Add event listeners
 checkTokenButton.addEventListener('click', checkToken);
+loadRepositoriesButton.addEventListener('click', () => loadRepositories(true));
 saveButton.addEventListener('click', saveSettings);
 
 /**
- * Load saved domains, repositories and token from storage
+ * Load saved domains, token and repositories from storage
  */
 async function loadSettings() {
   const [domains, repositories, { bitbucketToken }] = await Promise.all([
@@ -29,8 +36,13 @@ async function loadSettings() {
   ]);
   jiraDomainInput.value = domains.jiraDomain || '';
   bitbucketDomainInput.value = domains.bitbucketDomain || '';
-  searchRepositoriesInput.value = formatSearchRepositories(repositories);
   tokenInput.value = bitbucketToken || '';
+  repositoryPicker.setSelected(repositories);
+
+  // Load the repositories to choose from right away when Bitbucket access is already set up
+  if (domains.bitbucketDomain && await hasHostPermission(domains.bitbucketDomain)) {
+    loadRepositories(false);
+  }
 }
 
 /**
@@ -46,6 +58,24 @@ function readDomain(input, name) {
 
   input.value = domain;
   return domain;
+}
+
+/**
+ * Describe a failed Bitbucket call (token check or repository listing)
+ */
+function describeError(response, bitbucketDomain, fallback) {
+  switch (response.error) {
+    case 'INVALID_TOKEN':
+      return 'Token is invalid or expired. Please get a new one.';
+    case 'INVALID_COOKIE':
+      return 'Your Bitbucket session is invalid. Log in to Bitbucket in this browser, or enter a token.';
+    case 'NO_AUTH':
+      return 'Enter a token, or log in to Bitbucket in this browser.';
+    case 'NETWORK_ERROR':
+      return `Could not reach Bitbucket at ${bitbucketDomain}. Please check the domain and your connection.`;
+    default:
+      return response.message ? `${fallback}: ${response.message}` : fallback;
+  }
 }
 
 /**
@@ -78,12 +108,8 @@ async function checkToken() {
 
     if (response.valid) {
       showMessage(messageDiv, 'Token is valid ✓', 'success');
-    } else if (response.error === 'INVALID_TOKEN') {
-      showMessage(messageDiv, 'Token is invalid or expired. Please get a new one.', 'error');
-    } else if (response.error === 'NETWORK_ERROR') {
-      showMessage(messageDiv, `Could not reach Bitbucket at ${bitbucketDomain}. Please check the domain and your connection.`, 'error');
     } else {
-      showMessage(messageDiv, 'Token validation failed', 'error');
+      showMessage(messageDiv, describeError(response, bitbucketDomain, 'Token validation failed'), 'error');
     }
   } catch (error) {
     console.error('Error checking token:', error);
@@ -95,7 +121,54 @@ async function checkToken() {
 }
 
 /**
- * Save domains, repositories and token to storage
+ * Show the status of the repository list
+ */
+function showRepositoriesStatus(text, type = 'info') {
+  repositoriesStatus.textContent = text;
+  repositoriesStatus.classList.toggle('error', type === 'error');
+}
+
+/**
+ * Load the repositories of the entered Bitbucket domain, with the entered token or the session cookie
+ * From the button, site access is requested first; on page load it is already granted
+ */
+async function loadRepositories(fromClick) {
+  const bitbucketDomain = fromClick ? readDomain(bitbucketDomainInput, 'Bitbucket') : normalizeDomain(bitbucketDomainInput.value);
+  if (!bitbucketDomain) {
+    return;
+  }
+
+  loadRepositoriesButton.disabled = true;
+  showRepositoriesStatus('Loading repositories...');
+
+  try {
+    if (fromClick) {
+      // Must be requested straight from the click (user gesture), before any other await
+      const granted = await chrome.permissions.request({ origins: [originPattern(bitbucketDomain)] });
+      if (!granted) {
+        showRepositoriesStatus('Access to the Bitbucket site is required to load the repositories.', 'error');
+        return;
+      }
+    }
+
+    const response = await chrome.runtime.sendMessage({ action: 'listRepositories', token: tokenInput.value.trim(), bitbucketDomain });
+
+    if (response.success) {
+      repositoryPicker.setAvailable(response.repositories);
+      showRepositoriesStatus(`${response.repositories.length} repositories loaded from ${bitbucketDomain}. Select the ones to search, then save.`);
+    } else {
+      showRepositoriesStatus(describeError(response, bitbucketDomain, 'Could not load the repositories'), 'error');
+    }
+  } catch (error) {
+    console.error('Error loading repositories:', error);
+    showRepositoriesStatus('Extension error: ' + error.message, 'error');
+  } finally {
+    loadRepositoriesButton.disabled = false;
+  }
+}
+
+/**
+ * Save domains, token and repositories to storage
  * The token is not validated here: without a valid token the Bitbucket session cookie is used as fallback
  */
 async function saveSettings() {
@@ -109,15 +182,8 @@ async function saveSettings() {
     return;
   }
 
-  const { repositories, invalidLine } = parseSearchRepositories(searchRepositoriesInput.value);
-  if (invalidLine) {
-    showMessage(messageDiv, `Repositories line ${invalidLine} is not in PROJECT/repository format`, 'error');
-    searchRepositoriesInput.focus();
-    return;
-  }
-  searchRepositoriesInput.value = formatSearchRepositories(repositories);
-
   const tokenValue = tokenInput.value.trim();
+  const searchRepositories = repositoryPicker.getSelected();
   const origins = [originPattern(jiraDomain), originPattern(bitbucketDomain)];
 
   saveButton.disabled = true;
@@ -131,7 +197,7 @@ async function saveSettings() {
       return;
     }
 
-    await chrome.storage.local.set({ jiraDomain, bitbucketDomain, searchRepositories: repositories });
+    await chrome.storage.local.set({ jiraDomain, bitbucketDomain, searchRepositories });
     if (tokenValue) {
       await chrome.storage.local.set({ bitbucketToken: tokenValue });
     } else {

@@ -19,6 +19,13 @@ export async function getBitbucketAuth(bitbucketDomain) {
   }
 
   // If not in storage, try to get from browser cookies
+  return getCookieAuth(bitbucketDomain);
+}
+
+/**
+ * Get Bitbucket auth from the browser session cookie, or null when not logged in
+ */
+export async function getCookieAuth(bitbucketDomain) {
   try {
     const cookies = await chrome.cookies.getAll({
       domain: bitbucketDomain,

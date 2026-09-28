@@ -1,6 +1,7 @@
 // Service worker entry point: routes messages and keeps content scripts in sync with the configured domains
 import { getPullRequests } from './pull-requests.js';
 import { validateToken } from './auth.js';
+import { listRepositories } from './repositories.js';
 import { syncContentScripts } from './content-scripts.js';
 import { DOMAIN_KEYS, getDomains, isConfigured } from '../shared/domains.js';
 
@@ -11,7 +12,8 @@ const MESSAGE_HANDLERS = {
   // From the Jira content script
   getPullRequests: async (request) => getPullRequests(request.jiraKey),
   // From the options page
-  validateToken: async (request) => validateToken(request.token, request.bitbucketDomain)
+  validateToken: async (request) => validateToken(request.token, request.bitbucketDomain),
+  listRepositories: async (request) => listRepositories(request.token, request.bitbucketDomain)
 };
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

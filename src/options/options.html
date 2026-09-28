@@ -35,21 +35,6 @@
     <div class="divider"></div>
 
     <div class="section">
-      <h2>Pull request title search</h2>
-
-      <div class="field">
-        <label for="searchRepositoriesInput">Repositories</label>
-        <textarea id="searchRepositoriesInput" rows="4" placeholder="PROJECT/repository (one per line)" spellcheck="false"></textarea>
-        <p class="help-text">
-          Repositories whose pull request titles are searched for the Jira key, when
-          "Include search PR Text" is enabled in the popup. One <code>PROJECT/repository</code> per line.
-        </p>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="section">
       <h2>Bitbucket authentication</h2>
 
       <div class="field">
@@ -62,6 +47,25 @@
           Optional. Leave empty to use your Bitbucket session cookie from this browser instead.
         </p>
       </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section">
+      <h2>Pull request title search</h2>
+
+      <p class="help-text section-intro">
+        Repositories whose pull request titles are searched for the Jira key, when
+        "Include search PR Text" is enabled in the popup. They are loaded with the token above,
+        or with your Bitbucket session when no token is entered.
+      </p>
+
+      <div class="input-row">
+        <input type="text" id="repositoryFilterInput" placeholder="Filter repositories" autocomplete="off" spellcheck="false">
+        <button id="loadRepositoriesButton" class="btn-secondary">Load repositories</button>
+      </div>
+      <p id="repositoriesStatus" class="help-text" role="status"></p>
+      <div id="repositoryList" class="repository-list"></div>
     </div>
 
     <div class="button-group">
