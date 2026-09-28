@@ -1,0 +1,94 @@
+name: Release
+
+# Publishes the extension as a GitHub release with an installable zip.
+# Bump "version" in manifest.json first: the release is tagged v<version>.
+on:
+  workflow_dispatch:
+    inputs:
+      draft:
+        description: Create the release as a draft
+        type: boolean
+        default: false
+      prerelease:
+        description: Mark the release as a pre-release
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Read and validate the version
+        id: version
+        run: |
+          version=$(node -p "require('./manifest.json').version")
+          # Chrome extension versions are 1 to 4 dot-separated integers
+          if ! [[ "$version" =~ ^[0-9]+(\.[0-9]+){0,3}$ ]]; then
+            echo "::error file=manifest.json::Invalid version '$version' (expected e.g. 1.2.0)"
+            exit 1
+          fi
+          if git ls-remote --exit-code --tags origin "refs/tags/v$version" > /dev/null; then
+            echo "::error file=manifest.json::v$version is already released. Bump the version in manifest.json first."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Check JavaScript syntax
+        run: |
+          # Parse explicitly: the service worker and extension pages are ES modules,
+          # content scripts are classic scripts (Chrome cannot load them as modules)
+          status=0
+          while IFS= read -r -d '' file; do
+            case "$file" in
+              src/content/*) type=commonjs ;;
+              *) type=module ;;
+            esac
+            if ! node --input-type="$type" --check < "$file"; then
+              echo "::error file=$file::Syntax error (parsed as $type)"
+              status=1
+            fi
+          done < <(find src -name '*.js' -print0)
+          exit "$status"
+
+      - name: Package the extension
+        id: package
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Only what Chrome loads: manifest.json at the zip root, plus icons/ and src/
+          zip_name="${GITHUB_REPOSITORY#*/}-v$VERSION.zip"
+          zip -r -X "$zip_name" manifest.json icons src
+          unzip -l "$zip_name"
+          echo "zip=$zip_name" >> "$GITHUB_OUTPUT"
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          ZIP: ${{ steps.package.outputs.zip }}
+          DRAFT: ${{ inputs.draft }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          flags=()
+          if [ "$DRAFT" = "true" ]; then flags+=(--draft); fi
+          if [ "$PRERELEASE" = "true" ]; then flags+=(--prerelease); fi
+          gh release create "v$VERSION" "$ZIP" \
+            --title "v$VERSION" \
+            --target "$GITHUB_SHA" \
+            --generate-notes \
+            "${flags[@]}"

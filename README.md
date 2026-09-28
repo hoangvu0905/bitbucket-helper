@@ -14,12 +14,16 @@ A Chrome browser extension that displays Bitbucket pull requests associated with
 
 ## Installation
 
-1. Clone or download this repository
+1. Get the extension:
+   - **From a release (recommended)**: download `bitbucket-helper-v<version>.zip` from the [Releases](../../releases) page and unzip it into a folder you keep (Chrome loads the extension from that folder)
+   - **From source**: clone or download this repository
 2. Open Chrome and navigate to `chrome://extensions/`
 3. Enable "Developer mode" in the top right corner
 4. Click "Load unpacked"
 5. Select the extension directory (the folder containing `manifest.json`)
 6. The options page opens automatically - configure the domains (see below)
+
+To update, replace the folder contents with the new release (or pull the latest source) and click the refresh icon on the extension card in `chrome://extensions/`. Your settings are kept.
 
 ## Configuration
 
@@ -121,6 +125,7 @@ There is no build step: the folder is loaded as-is with "Load unpacked".
 
 ```
 ├── manifest.json                  # Extension manifest (Manifest V3)
+├── .github/workflows/release.yml  # Publishes a GitHub release with the packaged extension
 ├── icons/
 │   └── icon.png                   # Extension icon
 └── src/
@@ -241,6 +246,16 @@ The extension handles several error scenarios:
 - Bitbucket UI changes: `src/content/bitbucket/`
 - Settings: `src/popup/` (feature toggles) or `src/options/` (domains, repositories, token)
 - Configuration: `src/background/config.js`
+
+### Publishing a Release
+
+Releases are created by the **Release** GitHub Actions workflow:
+
+1. Bump `version` in `manifest.json` (e.g. `1.0.0` → `1.1.0`), commit and push
+2. On GitHub, open **Actions → Release → Run workflow**, choose the branch (normally `main`) and optionally *draft* or *pre-release*
+3. The workflow checks the version (1 to 4 dot-separated numbers, not released yet) and the JavaScript syntax, packages `manifest.json`, `icons/` and `src/` into `bitbucket-helper-v<version>.zip`, and creates the release `v<version>` with generated release notes and the zip attached
+
+The workflow refuses to run for a version that is already released, so the version in `manifest.json` always matches the release tag.
 
 ## Privacy & Security
 
